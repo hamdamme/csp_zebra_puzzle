@@ -164,14 +164,3 @@ with col1:
                 st.write("- " + msg)
         else:
             st.success("✅ All constraints satisfied so far!")
-
-with col2:
-    if st.button("Solve Puzzle"):
-        solution = solve(st.session_state.assignments)
-        if solution:
-            st.success("🎉 Puzzle Solved ✅")
-            df = pd.DataFrame(solution, index=houses)
-            st.subheader("📋 Solution")
-            st.dataframe(df, use_container_width=True)
-        else:
-            st.error("❌ No valid solution found. Check your input.")
