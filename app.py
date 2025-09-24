@@ -47,29 +47,82 @@ for i, house in enumerate(houses):
 def check_constraints(assignments):
     errors = []
 
-    # Rule examples (not exhaustive yet):
     # 1. Indian lives in the blue house
     for i in range(5):
         if assignments["Nationality"][i] == "Indian" and assignments["Color"][i] not in ["", "Blue"]:
-            errors.append(f"Rule broken: Indian must live in the Blue house (House {i+1}).")
+            errors.append("Indian must live in the Blue house.")
 
     # 2. Pakistani owns the parrot
     for i in range(5):
         if assignments["Nationality"][i] == "Pakistani" and assignments["Pet"][i] not in ["", "Parrot"]:
-            errors.append(f"Rule broken: Pakistani must own the Parrot (House {i+1}).")
+            errors.append("Pakistani must own the Parrot.")
 
     # 3. Beer is drunk in the green house
     for i in range(5):
         if assignments["Color"][i] == "Green" and assignments["Drink"][i] not in ["", "Beer"]:
-            errors.append(f"Rule broken: Beer must be drunk in the Green house (House {i+1}).")
+            errors.append("Beer must be drunk in the Green house.")
+
+    # 4. Mexican drinks Horchata
+    for i in range(5):
+        if assignments["Nationality"][i] == "Mexican" and assignments["Drink"][i] not in ["", "Horchata"]:
+            errors.append("Mexican must drink Horchata.")
+
+    # 5. Green house is immediately to the right of the yellow house
+    for i in range(4):  # house 1–4 can be yellow
+        if assignments["Color"][i] == "Yellow" and assignments["Color"][i+1] not in ["", "Green"]:
+            errors.append("Green house must be immediately to the right of Yellow.")
+
+    # 6. Cricket player owns a monkey
+    for i in range(5):
+        if assignments["Sport"][i] == "Cricket" and assignments["Pet"][i] not in ["", "Monkey"]:
+            errors.append("Cricket player must own a Monkey.")
+
+    # 7. Jogging is the preferred sport in the red house
+    for i in range(5):
+        if assignments["Color"][i] == "Red" and assignments["Sport"][i] not in ["", "Jogging"]:
+            errors.append("Jogging must be in the Red house.")
 
     # 8. Tea is drunk in the third house
     if assignments["Drink"][2] not in ["", "Tea"]:
-        errors.append("Rule broken: Tea must be drunk in House 3.")
+        errors.append("Tea must be drunk in House 3.")
 
     # 9. American lives in the first house
     if assignments["Nationality"][0] not in ["", "American"]:
-        errors.append("Rule broken: American must live in House 1.")
+        errors.append("American must live in House 1.")
+
+    # 10. Person with a raccoon lives next to the swimmer
+    for i in range(5):
+        if assignments["Pet"][i] == "Raccoon":
+            if (i > 0 and assignments["Sport"][i-1] == "Swimming") or (i < 4 and assignments["Sport"][i+1] == "Swimming"):
+                pass
+            else:
+                errors.append("Raccoon owner must live next to a Swimmer.")
+
+    # 11. Jogger lives next to the owner of a dog
+    for i in range(5):
+        if assignments["Sport"][i] == "Jogging":
+            if (i > 0 and assignments["Pet"][i-1] == "Dog") or (i < 4 and assignments["Pet"][i+1] == "Dog"):
+                pass
+            else:
+                errors.append("Jogger must live next to the owner of a Dog.")
+
+    # 12. Polo player drinks milk
+    for i in range(5):
+        if assignments["Sport"][i] == "Polo" and assignments["Drink"][i] not in ["", "Milk"]:
+            errors.append("Polo player must drink Milk.")
+
+    # 13. German likes soccer
+    for i in range(5):
+        if assignments["Nationality"][i] == "German" and assignments["Sport"][i] not in ["", "Soccer"]:
+            errors.append("German must like Soccer.")
+
+    # 14. American lives next to the white house
+    for i in range(5):
+        if assignments["Nationality"][i] == "American":
+            if (i > 0 and assignments["Color"][i-1] == "White") or (i < 4 and assignments["Color"][i+1] == "White"):
+                pass
+            else:
+                errors.append("American must live next to the White house.")
 
     return errors
 
