@@ -23,7 +23,27 @@ if "assignments" not in st.session_state:
 
 st.title("🏠 Zebra Puzzle (Classic CSP)")
 st.write("Fill in the houses using the dropdowns and try to solve the puzzle!")
+cols = st.columns(5)
 
+for i, house in enumerate(houses):
+    with cols[i]:
+        st.markdown(f"### {house}")
+
+        st.session_state.assignments["Color"][i] = st.selectbox(
+            "Color", [""] + colors, index=0, key=f"color_{i}"
+        )
+        st.session_state.assignments["Nationality"][i] = st.selectbox(
+            "Nationality", [""] + nationalities, index=0, key=f"nat_{i}"
+        )
+        st.session_state.assignments["Pet"][i] = st.selectbox(
+            "Pet", [""] + pets, index=0, key=f"pet_{i}"
+        )
+        st.session_state.assignments["Drink"][i] = st.selectbox(
+            "Drink", [""] + drinks, index=0, key=f"drink_{i}"
+        )
+        st.session_state.assignments["Sport"][i] = st.selectbox(
+            "Sport", [""] + sports, index=0, key=f"sport_{i}"
+        )
 
 # ---------------- Constraint Checker ---------------- #
 def check_constraints(assignments):
