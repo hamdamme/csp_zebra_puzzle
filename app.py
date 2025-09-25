@@ -23,7 +23,7 @@ if "assignments" not in st.session_state:
 st.title("🏠 Zebra Puzzle (Classic CSP)")
 st.write("Fill in the houses using the dropdowns and try to solve the puzzle!")
 
-# ---- Horizontal layout: 5 houses side-by-side ----
+# ---- Horizontal layout ----
 cols = st.columns(5)
 for i, house in enumerate(houses):
     with cols[i]:
@@ -44,111 +44,101 @@ for i, house in enumerate(houses):
             "Sport", [""] + sports, index=0, key=f"sport_{i}"
         )
 
-# ---- Full 14-rule constraint checker ----
+
+# ---- Constraint Checker (all 14 rules) ----
 def check_constraints(a):
-    errors = {}
+    # return True if all rules satisfied, False otherwise
 
     # 1. Indian lives in the blue house.
     for i in range(5):
-        if a["Nationality"][i] == "Indian" and a["Color"][i] not in ["", "Blue"]:
-            errors[(i, "Color")] = "Indian must live in Blue house."
+        if a["Nationality"][i] == "Indian" and a["Color"][i] != "Blue":
+            return False
 
     # 2. Pakistani owns the parrot.
     for i in range(5):
-        if a["Nationality"][i] == "Pakistani" and a["Pet"][i] not in ["", "Parrot"]:
-            errors[(i, "Pet")] = "Pakistani must own the Parrot."
+        if a["Nationality"][i] == "Pakistani" and a["Pet"][i] != "Parrot":
+            return False
 
     # 3. Beer is drunk in the green house.
     for i in range(5):
-        if a["Color"][i] == "Green" and a["Drink"][i] not in ["", "Beer"]:
-            errors[(i, "Drink")] = "Beer must be drunk in Green house."
+        if a["Color"][i] == "Green" and a["Drink"][i] != "Beer":
+            return False
 
     # 4. Mexican drinks Horchata.
     for i in range(5):
-        if a["Nationality"][i] == "Mexican" and a["Drink"][i] not in ["", "Horchata"]:
-            errors[(i, "Drink")] = "Mexican must drink Horchata."
+        if a["Nationality"][i] == "Mexican" and a["Drink"][i] != "Horchata":
+            return False
 
-    # 5. Green is immediately to the right of Yellow (Yellow at i, Green at i+1).
+    # 5. Green is immediately to the right of Yellow.
     for i in range(4):
-        if a["Color"][i] == "Yellow" and a["Color"][i + 1] not in ["", "Green"]:
-            errors[(i + 1, "Color")] = "Green must be immediately right of Yellow."
-    # If Green fixed at 0, it's impossible (no Yellow at -1). We only flag when Yellow set.
+        if a["Color"][i] == "Yellow" and a["Color"][i + 1] != "Green":
+            return False
 
     # 6. Cricket player owns a monkey.
     for i in range(5):
-        if a["Sport"][i] == "Cricket" and a["Pet"][i] not in ["", "Monkey"]:
-            errors[(i, "Pet")] = "Cricket player must own Monkey."
+        if a["Sport"][i] == "Cricket" and a["Pet"][i] != "Monkey":
+            return False
 
     # 7. Jogging is in the red house.
     for i in range(5):
-        if a["Color"][i] == "Red" and a["Sport"][i] not in ["", "Jogging"]:
-            errors[(i, "Sport")] = "Jogging must be in Red house."
+        if a["Color"][i] == "Red" and a["Sport"][i] != "Jogging":
+            return False
 
     # 8. Tea is drunk in the third house (index 2).
-    if a["Drink"][2] not in ["", "Tea"]:
-        errors[(2, "Drink")] = "Tea must be drunk in House 3."
+    if a["Drink"][2] != "Tea":
+        return False
 
     # 9. American lives in the first house (index 0).
-    if a["Nationality"][0] not in ["", "American"]:
-        errors[(0, "Nationality")] = "American must live in House 1."
+    if a["Nationality"][0] != "American":
+        return False
 
     # 10. Raccoon owner lives next to Swimmer.
     for i in range(5):
         if a["Pet"][i] == "Raccoon":
-            left_ok  = (i > 0 and a["Sport"][i - 1] in ["", "Swimming"])
-            right_ok = (i < 4 and a["Sport"][i + 1] in ["", "Swimming"])
-            if not (left_ok or right_ok):
-                errors[(i, "Pet")] = "Raccoon owner must live next to Swimmer."
+            if not (
+                (i > 0 and a["Sport"][i - 1] == "Swimming")
+                or (i < 4 and a["Sport"][i + 1] == "Swimming")
+            ):
+                return False
 
-    # 11. Jogger lives next to the owner of a Dog.
+    # 11. Jogger lives next to Dog owner.
     for i in range(5):
         if a["Sport"][i] == "Jogging":
-            left_ok  = (i > 0 and a["Pet"][i - 1] in ["", "Dog"])
-            right_ok = (i < 4 and a["Pet"][i + 1] in ["", "Dog"])
-            if not (left_ok or right_ok):
-                errors[(i, "Sport")] = "Jogger must live next to Dog owner."
+            if not (
+                (i > 0 and a["Pet"][i - 1] == "Dog")
+                or (i < 4 and a["Pet"][i + 1] == "Dog")
+            ):
+                return False
 
     # 12. Polo player drinks Milk.
     for i in range(5):
-        if a["Sport"][i] == "Polo" and a["Drink"][i] not in ["", "Milk"]:
-            errors[(i, "Drink")] = "Polo player must drink Milk."
+        if a["Sport"][i] == "Polo" and a["Drink"][i] != "Milk":
+            return False
 
     # 13. German likes Soccer.
     for i in range(5):
-        if a["Nationality"][i] == "German" and a["Sport"][i] not in ["", "Soccer"]:
-            errors[(i, "Sport")] = "German must like Soccer."
+        if a["Nationality"][i] == "German" and a["Sport"][i] != "Soccer":
+            return False
 
-    # 14. American lives next to the White house.
+    # 14. American lives next to White house.
     for i in range(5):
         if a["Nationality"][i] == "American":
-            left_ok  = (i > 0 and a["Color"][i - 1] in ["", "White"])
-            right_ok = (i < 4 and a["Color"][i + 1] in ["", "White"])
-            if not (left_ok or right_ok):
-                errors[(i, "Nationality")] = "American must live next to White house."
+            if not (
+                (i > 0 and a["Color"][i - 1] == "White")
+                or (i < 4 and a["Color"][i + 1] == "White")
+            ):
+                return False
 
-    return errors
+    return True
 
-# ---- Check button & table with highlighting ----
+
+# ---- Button ----
 if st.button("Check Constraints"):
     df = pd.DataFrame(st.session_state.assignments, index=houses)
-
-    errors = check_constraints(st.session_state.assignments)
-
-    # Map row label (e.g., "House 1") -> numeric index (0..4) to match our error keys
-    def style_row(row: pd.Series):
-        row_idx = houses.index(row.name)
-        return [
-            "background-color: #ffcccc" if (row_idx, col) in errors else ""
-            for col in df.columns
-        ]
-
-    styled = df.style.apply(style_row, axis=1)
     st.subheader("📋 Your Current Input")
-    st.dataframe(styled, use_container_width=True)
+    st.dataframe(df, use_container_width=True)
 
-    if errors:
-        st.error("⚠️ Some rules are broken:")
-        for msg in errors.values():
-            st.write(f"- {msg}")
+    if check_constraints(st.session_state.assignments):
+        st.success("🎉 Puzzle Solved! ✅")
     else:
-        st.success("✅ All constraints satisfied so far!")
+        st.error("❌ Incorrect – some rules are not satisfied.")
