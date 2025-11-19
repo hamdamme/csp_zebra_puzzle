@@ -2,7 +2,7 @@
 * Solved with **Backtracking + MRV heuristic**
 * Output: *Who drinks water? Who owns the fish?*
 
-# Zebra Puzzle (CSP) – Classic 5 Houses
+# Constraint Satisfaction Problem on Zebra Puzzle – Classic 5 Houses
 
 An interactive **Constraint Satisfaction Problem (CSP)** version of the classic Zebra Puzzle.  
 Goal: assign a unique **Color, Nationality, Pet, Drink, and Sport** to each of the five houses so that **all clues are satisfied**.
