@@ -1,4 +1,4 @@
-* **CSP formulation of Zebra Puzzle**
+* **Constraint Satisfaction Problem**
 * Solved with **Backtracking + MRV heuristic**
 * Output: *Who drinks water? Who owns the fish?*
 
