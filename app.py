@@ -1,144 +1,75 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
-# Categories
-colors = ["Red", "Blue", "Green", "Yellow", "White"]
-nationalities = ["American", "Indian", "Mexican", "Pakistani", "German"]
-pets = ["Raccoon", "Monkey", "Parrot", "Dog", "Fish"]
-drinks = ["Water", "Tea", "Horchata", "Milk", "Beer"]
-sports = ["Jogging", "Cricket", "Polo", "Soccer", "Swimming"]
+from csp_solver import (
+    COLORS, NATIONALITIES, PETS, DRINKS, SPORTS, check_constraints, solve,
+)
 
-houses = [f"House {i}" for i in range(1, 6)]
+st.set_page_config(page_title="ConstraintLab", layout="wide")
+st.title("ConstraintLab")
+st.caption("Interactive constraint satisfaction with backtracking and MRV search")
+st.write("Explore the five-house Zebra example. Assign values manually, validate the grid, or complete your assignments with the solver.")
 
-# Session state
-if "assignments" not in st.session_state:
-    st.session_state.assignments = {
-        "Color": [""] * 5,
-        "Nationality": [""] * 5,
-        "Pet": [""] * 5,
-        "Drink": [""] * 5,
-        "Sport": [""] * 5,
+categories = {
+    "Color": (COLORS, "color"),
+    "Nationality": (NATIONALITIES, "nat"),
+    "Pet": (PETS, "pet"),
+    "Drink": (DRINKS, "drink"),
+    "Sport": (SPORTS, "sport"),
+}
+
+def current_assignment():
+    return {
+        category: [st.session_state.get(f"{prefix}_{i}", "") for i in range(5)]
+        for category, (_, prefix) in categories.items()
     }
 
-st.title("🏠 Zebra Puzzle (Classic CSP)")
-st.write("Fill in the houses using the dropdowns and try to solve the puzzle!")
+def complete_assignment():
+    result = solve(current_assignment())
+    if result is None:
+        st.session_state["solver_message"] = "No solution satisfies these assignments. Revise your selections and try again."
+        return
+    for category, (_, prefix) in categories.items():
+        for i, value in enumerate(result[category]):
+            st.session_state[f"{prefix}_{i}"] = value
+    st.session_state["solver_message"] = ""
 
-# ---- Horizontal layout ----
-cols = st.columns(5)
-for i, house in enumerate(houses):
-    with cols[i]:
-        st.markdown(f"### {house}")
-        st.session_state.assignments["Color"][i] = st.selectbox(
-            "Color", [""] + colors, index=0, key=f"color_{i}"
-        )
-        st.session_state.assignments["Nationality"][i] = st.selectbox(
-            "Nationality", [""] + nationalities, index=0, key=f"nat_{i}"
-        )
-        st.session_state.assignments["Pet"][i] = st.selectbox(
-            "Pet", [""] + pets, index=0, key=f"pet_{i}"
-        )
-        st.session_state.assignments["Drink"][i] = st.selectbox(
-            "Drink", [""] + drinks, index=0, key=f"drink_{i}"
-        )
-        st.session_state.assignments["Sport"][i] = st.selectbox(
-            "Sport", [""] + sports, index=0, key=f"sport_{i}"
-        )
+with st.expander("Example constraints"):
+    st.markdown("""
+Each category uses every value exactly once.
 
+1. The Indian lives in the blue house.
+2. The Pakistani owns the parrot.
+3. Beer is drunk in the green house.
+4. The Mexican drinks Horchata.
+5. Green is immediately to the right of yellow.
+6. The cricket player owns a monkey.
+7. Jogging is the sport in the red house.
+8. Tea is drunk in the third house.
+9. The American lives in the first house.
+10. The raccoon owner lives next to the swimmer.
+11. The jogger lives next to the dog owner.
+12. The polo player drinks milk.
+13. The German likes soccer.
+14. The American lives next to the white house.
+""")
 
-# ---- Constraint Checker (all 14 rules) ----
-def check_constraints(a):
-    # return True if all rules satisfied, False otherwise
+for i, column in enumerate(st.columns(5)):
+    with column:
+        st.subheader(f"House {i + 1}")
+        for category, (values, prefix) in categories.items():
+            st.selectbox(category, [""] + values, key=f"{prefix}_{i}")
 
-    # 1. Indian lives in the blue house.
-    for i in range(5):
-        if a["Nationality"][i] == "Indian" and a["Color"][i] != "Blue":
-            return False
+validate = st.button("Validate assignment", type="primary")
+st.button("Complete with solver", on_click=complete_assignment)
+if st.session_state.get("solver_message"):
+    st.warning(st.session_state["solver_message"])
 
-    # 2. Pakistani owns the parrot.
-    for i in range(5):
-        if a["Nationality"][i] == "Pakistani" and a["Pet"][i] != "Parrot":
-            return False
-
-    # 3. Beer is drunk in the green house.
-    for i in range(5):
-        if a["Color"][i] == "Green" and a["Drink"][i] != "Beer":
-            return False
-
-    # 4. Mexican drinks Horchata.
-    for i in range(5):
-        if a["Nationality"][i] == "Mexican" and a["Drink"][i] != "Horchata":
-            return False
-
-    # 5. Green is immediately to the right of Yellow.
-    for i in range(4):
-        if a["Color"][i] == "Yellow" and a["Color"][i + 1] != "Green":
-            return False
-
-    # 6. Cricket player owns a monkey.
-    for i in range(5):
-        if a["Sport"][i] == "Cricket" and a["Pet"][i] != "Monkey":
-            return False
-
-    # 7. Jogging is in the red house.
-    for i in range(5):
-        if a["Color"][i] == "Red" and a["Sport"][i] != "Jogging":
-            return False
-
-    # 8. Tea is drunk in the third house (index 2).
-    if a["Drink"][2] != "Tea":
-        return False
-
-    # 9. American lives in the first house (index 0).
-    if a["Nationality"][0] != "American":
-        return False
-
-    # 10. Raccoon owner lives next to Swimmer.
-    for i in range(5):
-        if a["Pet"][i] == "Raccoon":
-            if not (
-                (i > 0 and a["Sport"][i - 1] == "Swimming")
-                or (i < 4 and a["Sport"][i + 1] == "Swimming")
-            ):
-                return False
-
-    # 11. Jogger lives next to Dog owner.
-    for i in range(5):
-        if a["Sport"][i] == "Jogging":
-            if not (
-                (i > 0 and a["Pet"][i - 1] == "Dog")
-                or (i < 4 and a["Pet"][i + 1] == "Dog")
-            ):
-                return False
-
-    # 12. Polo player drinks Milk.
-    for i in range(5):
-        if a["Sport"][i] == "Polo" and a["Drink"][i] != "Milk":
-            return False
-
-    # 13. German likes Soccer.
-    for i in range(5):
-        if a["Nationality"][i] == "German" and a["Sport"][i] != "Soccer":
-            return False
-
-    # 14. American lives next to White house.
-    for i in range(5):
-        if a["Nationality"][i] == "American":
-            if not (
-                (i > 0 and a["Color"][i - 1] == "White")
-                or (i < 4 and a["Color"][i + 1] == "White")
-            ):
-                return False
-
-    return True
-
-
-# ---- Button ----
-if st.button("Check Constraints"):
-    df = pd.DataFrame(st.session_state.assignments, index=houses)
-    st.subheader("📋 Your Current Input")
-    st.dataframe(df, use_container_width=True)
-
-    if check_constraints(st.session_state.assignments):
-        st.success("🎉 Puzzle Solved! ✅")
+assignment = current_assignment()
+st.subheader("Current assignment")
+st.dataframe(pd.DataFrame(assignment, index=[f"House {i + 1}" for i in range(5)]), width="stretch")
+if validate:
+    if check_constraints(assignment):
+        st.success("Valid assignment: every category and all 14 constraints are satisfied.")
     else:
-        st.error("❌ Incorrect – some rules are not satisfied.")
+        st.error("Invalid assignment: complete every field, use each category value once, and satisfy all 14 constraints.")

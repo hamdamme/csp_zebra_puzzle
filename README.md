@@ -1,54 +1,52 @@
-* **Constraint Satisfaction Problem**
-* Solved with **Backtracking + MRV heuristic**
-* Output: *Who drinks water? Who owns the fish?*
+# ConstraintLab
 
-# Constraint Satisfaction Problem on Zebra Puzzle – Classic 5 Houses
+An interactive constraint satisfaction application built with Python and Streamlit. It demonstrates backtracking search, the Minimum Remaining Values (MRV) heuristic, and constraint validation using a five-house Zebra example.
 
-An interactive **Constraint Satisfaction Problem (CSP)** version of the classic Zebra Puzzle.  
-Goal: assign a unique **Color, Nationality, Pet, Drink, and Sport** to each of the five houses so that **all clues are satisfied**.
+## Current scope
 
-> No spoilers here. The app is meant to be played — you’ll validate your own solution!
+- Assign values in an interactive grid and validate a complete assignment.
+- Complete a partial assignment with the solver, or report when no solution exists.
+- Enforce unique values in each category and all 14 example constraints.
+- Inspect the example constraints and resulting assignment in the interface.
 
+The current model is specific to the five-house example. A configurable model for scheduling or resource allocation is future work, not an implemented feature.
 
-## The Clues
-1. The Indian lives in the blue house.  
-2. The Pakistani owns the parrot.  
-3. Beer is drunk in the green house.  
-4. The Mexican drinks Horchata.  
-5. The green house is immediately to the right of the yellow house.  
-6. The cricket player owns a monkey.  
-7. Jogging is the preferred sport in the red house.  
-8. Tea is drunk in the third house.  
-9. The American lives in the first house.  
-10. The person with a raccoon lives next to the swimmer.  
-11. The jogger lives next to the owner of a dog.  
-12. The Polo player drinks milk.  
-13. The German likes soccer.  
-14. The American lives next to the white house.
+## Architecture
 
-> Each house has a different **color, nationality, pet, drink, and sport**.  
-> “Right” in clue #5 means “to the viewer’s right”.
+`csp_solver.py` defines domains, fixed clues, consistency checks, and backtracking with MRV variable selection. Category values are removed from other houses after assignment. `app.py` uses the same validator and solver, so manual validation and search follow the same rules. Streamlit session state stores the current grid.
 
+## Requirements and setup
 
-## How to Play
-- Open the web app and fill the 5×5 grid using dropdowns.  
-- Click **Check Constraints** to see if your current choices are valid.  
-- When every clue is satisfied, the app will show **Puzzle Solved**.
+Use Python 3.12 or later.
 
-## Tech
-- Python **backtracking CSP** with **MRV** (Minimum Remaining Values) and forward checking.  
-- **Streamlit** web UI (interactive grid with validation).
-
-## Run Locally
-```bash
-git clone https://github.com/hamdamme/csp-zebra-puzzle.git
-cd csp-zebra-puzzle
+```sh
+git clone https://github.com/hamdamme/csp_zebra_puzzle.git
+cd csp_zebra_puzzle
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
+```
 
-##  Project Structure
-csp\_zebra/
-├── csp\_solver.py      # Backtracking + MRV CSP solver
-├── app.py             # Streamlit interface
-├── requirements.txt   # Dependencies
-└── README.md          # Project documentation
+## Testing
+
+```sh
+python3 -m unittest discover -s tests
+```
+
+Regression tests cover valid solutions, duplicate values, incomplete grids, contradictions with fixed clues, invalid complete assignments, and unknown values.
+
+## Deployment
+
+`render.yaml` defines a Python web service with a Streamlit start command that uses Render's assigned port. The existing demo URL is https://csp-zebra-puzzle.onrender.com/. Repository branding does not change the existing service URL.
+
+## Project files
+
+- `app.py`: interactive interface
+- `csp_solver.py`: search and validation
+- `tests/test_solver.py`: solver regression tests
+- `requirements.txt`: application dependencies
+- `render.yaml`: deployment configuration
+- `ROADMAP.md`: scope and progress
+
+See `LICENSE` for license terms.

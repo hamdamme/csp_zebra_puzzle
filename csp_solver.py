@@ -45,7 +45,9 @@ def initial_domains(partial=None):
                 continue
             for i, v in enumerate(vals):
                 if v and v.strip():
-                    domains[cat][i] = {v}
+                    if i >= 5 or v not in {"Color": COLORS, "Nationality": NATIONALITIES, "Pet": PETS, "Drink": DRINKS, "Sport": SPORTS}[cat]:
+                        raise ValueError("Invalid partial assignment")
+                    domains[cat][i] &= {v}
 
     # Basic all-different forward checking for each category
     for cat in CATS:
@@ -87,6 +89,8 @@ def maybe_pos(value, cell_sets):
 def enforce_all_diff(domains, cat):
     """Simple all-different pruning: remove placed values from others."""
     placed = [next(iter(s)) for s in domains[cat] if len(s) == 1]
+    if len(placed) != len(set(placed)):
+        return False
     changed = False
     for i in HOUSE_INDEXES:
         if len(domains[cat][i]) > 1:
@@ -103,6 +107,15 @@ def consistent_with_rules(domains):
     Check all rules that can be checked with current domains.
     If something is impossible, return False.
     """
+    for cat in CATS:
+        cells = domains[cat]
+        if any(not cell for cell in cells):
+            return False
+        placed = [next(iter(cell)) for cell in cells if len(cell) == 1]
+        if len(placed) != len(set(placed)):
+            return False
+    if "Tea" not in domains["Drink"][2] or "American" not in domains["Nationality"][0]:
+        return False
     C = domains["Color"]
     N = domains["Nationality"]
     P = domains["Pet"]
@@ -250,6 +263,8 @@ def assign_and_propagate(domains, cat, idx, val):
 
 
 def backtrack(domains):
+    if not consistent_with_rules(domains):
+        return None
     if is_complete(domains):
         return domains
 
@@ -282,3 +297,15 @@ def solve(partial=None):
     if res is None:
         return None
     return get_assignment(res)
+
+def check_constraints(assignment):
+    """Validate a complete grid, including each category's all-different rule."""
+    allowed = dict(zip(CATS, [COLORS, NATIONALITIES, PETS, DRINKS, SPORTS]))
+    if set(assignment) != set(CATS):
+        return False
+    for cat in CATS:
+        values = assignment[cat]
+        if len(values) != 5 or set(values) != set(allowed[cat]):
+            return False
+    domains = {cat: [{value} for value in assignment[cat]] for cat in CATS}
+    return consistent_with_rules(domains)
