@@ -8,6 +8,8 @@ Scope and architecture are described in [README.md](README.md).
 | Correctness | Shared validation and regression tests | Small | Complete |
 | Interactive solving | Complete partial assignments and report contradictions | Small | Complete |
 | Verification | Solver tests and interface checks | Small | Complete |
-| Publication | Publish source and verify CI and live deployment | Small | Source pushed; CI passed; Render deployment pending |
+| Publication | Publish source and verify CI and live deployment | Small | Source pushed; CI passed; Render connection and deployment verification pending |
 | Portfolio | Update project name, description, and links | Small | Complete; production content verified |
 | Configurable models | Define requirements for additional constraint models | To be scoped | Planned |
+
+Repository and canonical project folder: `constraintlab`.

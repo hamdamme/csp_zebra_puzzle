@@ -20,8 +20,8 @@ The current model is specific to the five-house example. A configurable model fo
 Use Python 3.12 or later.
 
 ```sh
-git clone https://github.com/hamdamme/csp_zebra_puzzle.git
-cd csp_zebra_puzzle
+git clone https://github.com/hamdamme/constraintlab.git
+cd constraintlab
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -50,3 +50,5 @@ Regression tests cover valid solutions, duplicate values, incomplete grids, cont
 - `ROADMAP.md`: scope and progress
 
 See `LICENSE` for license terms.
+
+After a repository rename, verify the linked repository and branch in Render settings before deploying the latest commit. The live interface should display ConstraintLab.
