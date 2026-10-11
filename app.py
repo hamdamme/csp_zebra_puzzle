@@ -5,7 +5,9 @@ from csp_solver import (
     COLORS, NATIONALITIES, PETS, DRINKS, SPORTS, check_constraints, solve,
 )
 
-st.set_page_config(page_title="ConstraintLab", layout="wide")
+st.set_page_config(
+    page_title="ConstraintLab", page_icon="assets/favicon.png", layout="wide"
+)
 st.title("ConstraintLab")
 st.caption("Interactive constraint satisfaction with backtracking and MRV search")
 st.write("Explore the five-house Zebra example. Assign values manually, validate the grid, or complete your assignments with the solver.")
