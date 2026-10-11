@@ -38,7 +38,7 @@ Regression tests cover valid solutions, duplicate values, incomplete grids, cont
 
 ## Deployment
 
-`render.yaml` defines a Python web service with a Streamlit start command that uses Render's assigned port. The existing demo URL is https://csp-zebra-puzzle.onrender.com/. Repository branding does not change the existing service URL.
+`render.yaml` defines a Python web service with a Streamlit start command that uses Render's assigned port. The public demo is https://constraintlab.hamdam.me/. Namecheap provides a CNAME for `constraintlab` pointing to the existing Render service. Render verifies domain ownership and manages the HTTPS certificate.
 
 ## Project files
 
